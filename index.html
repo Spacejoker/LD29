@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Slider game</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: 000;}
+        </style>
+        <script src="js/pixi.dev.js"></script>
+    </head>
+    <body>
+        <script>
+            var stage = new PIXI.Stage(0x66FF99, true);
+            var renderer = PIXI.autoDetectRenderer(120*4, 120*4);
+            document.body.appendChild(renderer.view);
+            requestAnimFrame( animate );
+
+            var blocks = Array();
+            var bricks = new Array();
+
+            for( var i = 0 ;i < 16 ; i ++){
+                bricks[i] = (i+1)%16;
+            }
+
+            var shuffle = function shuffle(o){ //v1.0
+                for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+                return o;
+            };
+            shuffle(bricks);
+            console.log(bricks);
+            move_function = function(mouseData){
+                //int x = this.position.x;
+                //console.loc(x);
+            }
+
+            for( var y = 0; y < 4 ; y ++){
+                for( var x = 0 ; x < 4; x ++){
+                    if(bricks[y*4 + x] != 0){
+                        var texture = PIXI.Texture.fromImage("card" + bricks[y*4 + x ] + ".png");
+                        var b = new PIXI.Sprite(texture);
+                        b.position.x = x * 120;
+                        b.position.y = y * 120;
+                        b.setInteractive(true);
+                        blocks[blocks.length] = b;
+                        b.click = function(mouseData){
+                            var dir = Array();
+                            dir[0] = [1,0];
+                            dir[1] = [-1,0];
+                            dir[2] = [0,1];
+                            dir[3] = [0,-1];
+                            var x = this.position.x/120;
+                            var y = this.position.y/120;
+                            for(var d = 0 ; d < 4 ; d ++){
+                                var newx = dir[d][0] + x;
+                                var newy = dir[d][1] + y;
+                                if(newx >= 0 && newx < 4 && newy >= 0 && newy < 4 && bricks[newy*4 + newx] == 0){
+                                    bricks[newy * 4 + newx] = bricks[y*4 + x];
+                                    bricks[y*4 + x] = 0;
+                                    this.position.x += 120*dir[d][0];
+                                    this.position.y += 120*dir[d][1];
+                                    break;
+                                }
+                            }
+                            console.log(this.position.x/120 + ", " + this.position.y);
+                            console.log(bricks);
+                        };
+                        stage.addChild(b);
+                    }
+                }
+            }
+
+            function animate() {
+                requestAnimFrame ( animate );
+                var win = true;
+                for(var i = 0; i < 15 ; i ++){
+                    if( bricks[i] != i+1){
+                        win = false;
+                    }
+                }
+                if(win){
+                        var texture = PIXI.Texture.fromImage("win.png");
+                        var b = new PIXI.Sprite(texture);
+                        stage.addChild(b);
+                        b.position.y = 140;
+                    console.log("Win!");
+                    shuffle(bricks);
+                }
+                //console.log(bricks);
+                renderer.render(stage);
+            }
+        </script>
+    </body>
+</html>
